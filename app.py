@@ -125,7 +125,18 @@ def update_order(order_id):
             save_data(data)
             return jsonify({"message":"Order not found"}), 404
 
-
+@app.route("/api/orders/<order_id>", methods = ["DELETE"])
+def delete_order(order_id):
+    data = load_data()
+    orders = data["orders"]
+    for i in range(len(orders)):
+        if orders[i]["id"] == order_id:
+            if orders[i]["status"] != "Canceled":
+                return jsonify({"message":"Cancel order first"}), 400
+            order.pop(i)
+            save_data(data)
+            return jsonify({"message":"Order deleted"})
+    return jsonify({"message":"Order not found"}), 404
 
 
 if __name__ == "__main__":
