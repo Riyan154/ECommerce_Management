@@ -111,6 +111,21 @@ def add_order():
 def update_order(order_id):
     data = load_data()
     status = request.get_json()["status"]
+    if status not in order_status:
+        return jsonify({"message":"Invalid status"}), 400
+    for order in data["orders"]:
+        if order["id"] == order_id:
+            if order["status"] in ("Delivered", "Canceled"):
+                return jsonify({"message":"Order already closed"}), 400
+            if status == "Canceled":
+                product = data["products"].get(order["product_id"])
+                if product is not None:
+                    product["stock"] += order["quantity"]
+            order["status"] = status
+            save_data(data)
+            return jsonify({"message":"Order not found"}), 404
+
+
 
 
 if __name__ == "__main__":
