@@ -207,6 +207,36 @@
             if (await api(url, editing ? "PATCH" : "POST", product)) productPage()
         }
 
+        function editProduct(id) {
+            editing = id
+            const form = document.getElementById("productForm")
+            Object.entries(product[id].foreach(([key, value]) => {
+                if (form.elements[key]) form.elements[key].value = value
+            }))
+            document.getElementById("formTitle").textContent = "Edit Product"
+            window.scrollTo({ top: 0, behaviour: "smooth" })
+        }
+
+        async function deleteProduct(id) {
+            if (confirm("Delete this product?")) {
+                await api("/api/products/" + id, "DELETE")
+                productsPage()
+            }
+        }
+
+        async function searchProducts() {
+            const q = document.getElementById("search").value
+            const result = await api("/api/products/search?q=" + encodeURIComponent(q))
+            if (result && document.getElementById("productTable")) productTable(result)
+
+        }
+
+        function sortProduct() {
+            productTable(Object.fromEntries(
+                Object.entries(products).sort((a, b) => a[1].price - b[1].price)
+            ))
+        }
+
     </script>
 
 </body>
