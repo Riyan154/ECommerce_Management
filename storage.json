@@ -1,22 +1,4 @@
 {
-    "products": {
-        "fbfd453f-4e04-45be-8124-f527c3ea2d06": {
-            "name": "Iphone",
-            "price": 20000,
-            "stock": 1,
-            "category": "Accessories"
-        }
-    },
-    "orders": [
-        {
-            "customer": "Riyan",
-            "product_id": "fbfd453f-4e04-45be-8124-f527c3ea2d06",
-            "quantity": 2,
-            "payment_method": "Cash on Delivery",
-            "id": "c6bffb8c-e60c-4e5a-9b76-cdfb18dfea46",
-            "product_name": "Iphone",
-            "total": 40000,
-            "status": "Pending"
-        }
-    ]
+    "products": {},
+    "orders": []
 }

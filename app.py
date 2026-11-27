@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import uuid
 import json
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder = ".")
 
 categories = ("Accessories", "Computers", "Displays", "Audio", "Storage", "Networking")
 order_statuses = ("Pending", "Confirmed", "Shipped", "Delivered", "Canceled")
@@ -79,17 +79,6 @@ def delete_product(product_id):
     save_data(data)
     return jsonify({"message":"Product deleted"})
 
-@app.route("/api/products/search", methods = ["GET"])
-def search_products():
-    data = load_data()
-    query = request.args.get("q", "").lower()
-    results = {}
-
-    for key, value in data["products"].items():
-        if query in value["name"].lower():
-            results[key] = value
-    return jsonify(results)
-
 @app.route("/api/orders", methods = ["GET"])
 def view_orders():
     data = load_data()
@@ -101,7 +90,7 @@ def add_order():
     order = request.get_json()
     product_id = order["product_id"]
     quantity = order["quantity"]
-    product = data["products"].get (product_id)
+    product = data["products"].get(product_id)
     if product is None:
         return jsonify({"message":"Product not found"}), 404
     if type(quantity) != int or quantity <= 0 or quantity > product["stock"]:
@@ -140,15 +129,14 @@ def update_order(order_id):
 def delete_order(order_id):
     data = load_data()
     orders = data["orders"]
-    for i in range(len(orders)):
+    for i in orders:
         if orders[i]["id"] == order_id:
-            if orders[i]["status"] != "Canceled":
+            if orders[i]["status"] not in ["Canceled", "Delivered"]:
                 return jsonify({"message":"Cancel order first"}), 400
             orders.pop(i)
             save_data(data)
             return jsonify({"message":"Order deleted"})
     return jsonify({"message":"Order not found"}), 404
-
 
 if __name__ == "__main__":
     app.run(port = 5050, debug = True)

@@ -88,9 +88,6 @@
     </header>
 
     <main id="content" class="max-w-6xl mx-auto p-6 md:py-10"></main>
-    <footer class="text-center text-xs text-slate-400 p-6">
-        Electronics Store
-    </footer>
 
     <script>
         const content = document.getElementById("content")
@@ -162,10 +159,6 @@
                 </section>
 
                 <section class="card">
-                    <div class="flex flex-wrap gap-3 mb-5">
-                        <input id="search" placeholder= "Search Products..." class="flex-1" oninput="searchProducts()">
-                        <button class="secondary" onclick="sortProducts()">Sort by Price</button>
-                    </div>
                     <div id="productTable" class="overflow-x-auto"></div>
                 </section>`
             productTable(products)
@@ -222,19 +215,6 @@
                 await api("/api/products/" + id, "DELETE")
                 productsPage()
             }
-        }
-
-        async function searchProducts() {
-            const q = document.getElementById("search").value
-            const result = await api("/api/products/search?q=" + encodeURIComponent(q))
-            if (result && document.getElementById("productTable")) productTable(result)
-
-        }
-
-        function sortProducts() {
-            productTable(Object.fromEntries(
-                Object.entries(products).sort((a, b) => a[1].price - b[1].price)
-            ))
         }
 
         async function ordersPage() {
