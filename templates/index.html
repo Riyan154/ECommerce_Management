@@ -237,6 +237,86 @@
             ))
         }
 
+        async function ordersPage() {
+            products = await api("/api/products")
+            const orders = await api("/api/orders")
+            if (!products || !orders) return
+            navigation("orders")
+
+            content.innerHTML = `
+                ${heading("Orders", "Create and manage customer orders")}
+                <section class="card">
+                    <h3 class= "text-lg font-semibold mb-5"">Create Order</h3>
+                    <form onsubmit="addOrder(event)" class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <input name="customer" placeholder= "Customer name" required>
+                        <select name= "product_id" required>
+                            <option value="">Select product</option>
+                            ${Object.entries(products).filter(([id, p]) => p.stock > 0).map(([id, p]) => `<option value="${id}">${esc(p.name)}</options>`).join("")}
+                        </select>
+                        <input name="quantity" type ="number" min="1" placeholder="Quantity" required>
+                        <select name="payment_method">${options(payments)}</select>
+                        <button class="primary">Place Order</button>
+                    </form>
+                    <p class="text-xs text-slate-400 mt-4">All payments are simulated</p>
+                </section>
+                <section class="card overflow-x-auto">
+                    <h3 class="text-lg font-semibold mb-5">All Orders</h3>
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-slate-500">
+                            <tr>
+                                <th>Customer</th><th>Status</th><th>Quantity</th>
+                                <th>Total></th><th>Status</th><th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${orders.map(o => `
+                            <tr>
+                                <td class="font-semibold">${esc(o.customer)}</td>
+                                <td>${esc(o.product_name)}</td>
+                                <td>${o.quantity}</td>
+                                <td>AED ${o.total}</td>
+                                <td>
+                                    <select onchange="updateOrder('${o.id}',this.value)" 
+                                        ${["Delivered", "Canceled"].includes(o.status) ? "disabled" : ""}>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="danger" onclick="deleteOrder('${o.id}')">Delete</button>
+                                </td>
+                            
+                            </tr>`).join("")}
+                    </tbody>
+                </table>
+                ${orders.length === 0 ? '<p class="text-center text-slate-400 py-10">No orders yet</p>' : ''}
+            </section>`
+
+        }
+
+        async function addOrder(event) {
+            event.preventDefault()
+            const f = new FormData(event.target)
+            const order = {
+                customer: f.get("customer"),
+                product_id: f.get("product_id"),
+                quantity: Number(f.get("quantity")),
+                payment_method: f.get("payment_method")
+            }
+            if (await api("/api/orders", "POST", order)) ordersPage()
+        }
+
+        async function updateOrder(id, status) {
+            await api("/api/order/" + id, "PATCH", { status })
+            ordersPage()
+        }
+
+        async function deleteOrder(id) {
+            if (confirm("Dlete this order?")) {
+                await api("/api/order/" + id, "DELETE")
+                ordersPage()
+            }
+        }
+
+        productsPage()
     </script>
 
 </body>
